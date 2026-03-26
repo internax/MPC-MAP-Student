@@ -7,7 +7,76 @@ if (read_only_vars.counter == 1)
     public_vars = init_particle_filter(read_only_vars, public_vars);
     public_vars = init_kalman_filter(read_only_vars, public_vars);
 
-end
+end                                                                                                                                                                        
+  if read_only_vars.counter == 1                                                                                                                                                                             
+      public_vars.lidar_log = [];                                                                                                                                                                            
+      public_vars.gnss_log = [];                            
+  end                                                                                                                                                                                                        
+                                                                                                                                                                                                                                                            
+public_vars.lidar_log = [public_vars.lidar_log; read_only_vars.lidar_distances];
+public_vars.gnss_log  = [public_vars.gnss_log;  read_only_vars.gnss_position];
+
+  if read_only_vars.counter == 100                                                                                                                                                                           
+      sigma_lidar = std(public_vars.lidar_log);                                                                                                                                                              
+      sigma_gnss  = std(public_vars.gnss_log);              
+                                                                                                                                                                                                             
+      disp('Sigma LiDAR:'); disp(sigma_lidar)
+      disp('Sigma GNSS:');  disp(sigma_gnss)                                                                                                                                                                 
+       
+      n_bins = 15;
+
+      % Histogramy LiDAR
+      figure(2);                                                                                                                                                                                             
+      for i = 1:8                                                                                                                                                                                            
+          subplot(2,4,i);
+          histogram(public_vars.lidar_log(:,i),n_bins);                                                                                                                                                             
+          title(['LiDAR kanál ' num2str(i)]);               
+      end                                                                                                                                                                                                    
+   
+      % Histogramy GNSS                                                                                                                                                                                      
+      figure(3);                                            
+      subplot(1,2,1); histogram(public_vars.gnss_log(:,1), n_bins); title('GNSS X');
+      subplot(1,2,2); histogram(public_vars.gnss_log(:,2), n_bins ); title('GNSS Y'); 
+
+
+      % Kovariance Task 3
+
+        C_lidar = cov(public_vars.lidar_log);  % 8x8                                                                                                                                                               
+        C_gnss  = cov(public_vars.gnss_log);   % 2x2   
+
+        disp('Velikost C_lidar: '); disp(size(C_lidar));
+        disp('Velikost C_gnss: '); disp(size(C_gnss));
+                                                                                                                                                                                                             
+        %disp('Cov LiDAR:'); disp(C_lidar)
+        %disp('Cov GNSS:');  disp(C_gnss)                                                                                                                                                                           
+                                                                                                                                                                                                             
+        % Ověření: diagonála == sigma^2                                                                                                                                                                            
+        disp('Diagonála LiDAR (sigma^2):'); disp(diag(C_lidar)')                                                                                                                                                   
+        disp('Sigma^2 LiDAR:');             disp(sigma_lidar.^2)                                                                                                                                                   
+                                                                                                                                                                                                             
+        disp('Diagonála GNSS (sigma^2):'); disp(diag(C_gnss)')                                                                                                                                                     
+        disp('Sigma^2 GNSS:');             disp(sigma_gnss.^2)   
+
+
+      % Hustota pravděpodobnosti Task 4
+
+        x = linspace(-1, 1, 1000);                                                                                                                                                                                 
+                                                                                                                                                                                                             
+        figure(4);
+        plot(x, norm_pdf(x, 0, sigma_lidar(1))); hold on;                                                                                                                                                          
+        plot(x, norm_pdf(x, 0, sigma_gnss(1)));                                                                                                                                                                    
+        legend('LiDAR kanál 1', 'GNSS X');                                                                                                                                                                         
+        title('PDF šumu senzorů');                                                                                                                                                                                 
+        xlabel('Odchylka (m)');                                                                                                                                                                                    
+        ylabel('Hustota pravděpodobnosti');    
+  end
+
+
+
+
+
+
+
 
 % 9. Update particle filter
 public_vars.particles = update_particle_filter(read_only_vars, public_vars);
