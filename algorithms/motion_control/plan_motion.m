@@ -1,78 +1,37 @@
 function [public_vars] = plan_motion(read_only_vars, public_vars)
 %PLAN_MOTION Summary of this function goes here
 
-% I. Pick navigation target
+  pose = read_only_vars.mocap_pose;   % [x, y, uhl]
+                                                                                                                                                                                                                     
+  if isempty(pose) || isempty(public_vars.path)                                                                                                                                                                      
+      public_vars.motion_vector = [0, 0];
+      return                                                                                                                                                                                                         
+  end             
 
-target = get_target(public_vars.estimated_pose, public_vars.path);
-
-
-% II. Compute motion vector
- if read_only_vars.counter <= 1
-        public_vars.motion_vector = [0.1, 0.1];
-        public_vars.position_turnpoint = 0;
-        public_vars.raf = 0;
- end
-
-    
-switch public_vars.raf
-    case 0
-        if read_only_vars.counter == (public_vars.position_turnpoint + 600)
-            public_vars.motion_vector = [0, 0.1];
-            public_vars.position_turnpoint = read_only_vars.counter;
-            public_vars.raf = 1;
-        end
-
-    case 1
-         if read_only_vars.counter == (public_vars.position_turnpoint + 30)
-            public_vars.motion_vector = [0.1, 0.1];
-            public_vars.position_turnpoint = read_only_vars.counter;
-            public_vars.raf = 2;
-         end
-
-    case 2
-         if read_only_vars.counter == (public_vars.position_turnpoint + 400)
-            public_vars.motion_vector = [0, 0.1];
-            public_vars.position_turnpoint = read_only_vars.counter;
-            public_vars.raf = 3;
-         end
-
-    case 3
-         if read_only_vars.counter == (public_vars.position_turnpoint + 30)
-            public_vars.motion_vector = [0.1, 0.1];
-            public_vars.position_turnpoint = read_only_vars.counter;
-            public_vars.raf = 4;
-         end
-
-    case 4
-         if read_only_vars.counter == (public_vars.position_turnpoint + 600)
-            public_vars.motion_vector = [0.1, 0];
-            public_vars.position_turnpoint = read_only_vars.counter;
-            public_vars.raf = 5;
-         end
-
-    case 5
-         if read_only_vars.counter == (public_vars.position_turnpoint + 30)
-            public_vars.motion_vector = [0.1, 0.1];
-            public_vars.position_turnpoint = read_only_vars.counter;
-            public_vars.raf = 6;
-         end
+  target = get_target(pose, public_vars.path);                                                                                                                                                                       
    
-    case 6
-         if read_only_vars.counter == (public_vars.position_turnpoint + 250)
-            public_vars.motion_vector = [0.1, 0];
-            public_vars.position_turnpoint = read_only_vars.counter;
-            public_vars.raf = 7;
-         end
-
-    case 7
-         if read_only_vars.counter == (public_vars.position_turnpoint + 25)
-            public_vars.motion_vector = [0.1, 0.1];
-            public_vars.position_turnpoint = read_only_vars.counter;
-            public_vars.raf = 8;
-        end
-     
-end
-    
+  % uhel                                                                                                                                                                                                     
+  angle_to_target = atan2(target(2) - pose(2), target(1) - pose(1));                                                                                                                                                                                                               
+  angle_error = angle_to_target - pose(3);                                                                                                                                                                           
+  angle_error = atan2(sin(angle_error), cos(angle_error));                                                                                                                                                           
+                                                                                                                                                                                                                     
+  % param
+  v_base = 0.5;                                                                                                                                                                              
+  k = 0.5;                                                                                                                                                                                        
+                                                                                                                                                                                                                  
+  %rychlst kola                                                                                                                                                                                                  
+  vR = v_base + k * angle_error;                                                                                                                                                                                     
+  vL = v_base - k * angle_error;                                                                                                                                                                                     
+   
+  % limitace                                                                                                                                                                                          
+  max_v = read_only_vars.agent_drive.max_vel;
+  vR = max(-max_v, min(max_v, vR));                                                                                                                                                                                  
+  vL = max(-max_v, min(max_v, vL));                                                                                                                                                                                  
+                                                                                                                                                                                                                     
+  public_vars.motion_vector = [vR, vL];                                                                                                                                                                              
+           
+  %disp("pose:"); disp(pose)                                                                                                                                                                                                         
+      
 
 
 end
