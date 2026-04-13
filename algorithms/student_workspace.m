@@ -4,6 +4,8 @@ function [public_vars] = student_workspace(read_only_vars,public_vars)
 % 8. Perform initialization procedure
 if (read_only_vars.counter == 1)
           
+    public_vars.pf_enabled = 1; 
+
     public_vars = init_particle_filter(read_only_vars, public_vars);
     public_vars = init_kalman_filter(read_only_vars, public_vars);
 
@@ -12,6 +14,31 @@ if (read_only_vars.counter == 1)
 end                                                                                                                                                                        
  
 
+ if read_only_vars.counter == 2
+     disp('Particles sample:'); disp(public_vars.particles(1:3,:))                                                                                                                                                   
+     disp('pf_enabled:'); disp(public_vars.pf_enabled)                                                                                                                                                               
+     waitforbuttonpress;
+ end   
+
+ if read_only_vars.counter == 3
+     disp('Particles sample:'); disp(public_vars.particles(1:3,:))                                                                                                                                                   
+     disp('pf_enabled:'); disp(public_vars.pf_enabled)                                                                                                                                                               
+     waitforbuttonpress;
+ end   
+
+ if read_only_vars.counter == 4
+     disp('Particles sample:'); disp(public_vars.particles(1:3,:))                                                                                                                                                   
+     disp('pf_enabled:'); disp(public_vars.pf_enabled)                                                                                                                                                               
+     waitforbuttonpress;
+ end   
+
+ if read_only_vars.counter == 5
+     disp('Particles sample:'); disp(public_vars.particles(1:3,:))                                                                                                                                                   
+     disp('pf_enabled:'); disp(public_vars.pf_enabled)                                                                                                                                                               
+     waitforbuttonpress;
+ end   
+ 
+          
                                                                                                                                                                                                                                                             
 public_vars.lidar_log = [public_vars.lidar_log; read_only_vars.lidar_distances];
 public_vars.gnss_log  = [public_vars.gnss_log;  read_only_vars.gnss_position];
@@ -31,6 +58,7 @@ y = linspace(1, 9, 100)' + sin(linspace(0, 6*pi, 100)');
 path_sine = [x, y];                                                                                                                                                                                                     
                  
 public_vars.path = path_sine;
+
 
   
 

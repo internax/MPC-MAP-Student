@@ -3,6 +3,11 @@ function [particles] = update_particle_filter(read_only_vars, public_vars)
 
 particles = public_vars.particles;
 
+% Přeskoč první iteraci — jen zobrazíme inicializaci
+if read_only_vars.counter == 1
+    return
+end
+
 % I. Prediction
 for i=1:size(particles, 1)
     particles(i,:) = predict_pose(particles(i,:), public_vars.motion_vector, read_only_vars);
