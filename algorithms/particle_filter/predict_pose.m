@@ -6,16 +6,16 @@ function [new_pose] = predict_pose(old_pose, motion_vector, read_only_vars)
   vR = motion_vector(1);                                                                                                                                                                                          
   vL = motion_vector(2);                                                                                                                                                                                          
                                                                                                                                                                                                                   
-  % Kinematika diferenciálního pohonu                                                                                                                                                                             
+  % Kinematika                                                                                                                                                                   
   v     = (vR + vL) / 2;
   omega = (vR - vL) / d;                                                                                                                                                                                          
                                                                                                                                                                                                                   
-  % Nová poloha
+ % Nová poloha
   new_x     = old_pose(1) + v * cos(old_pose(3)) * T;                                                                                                                                                             
   new_y     = old_pose(2) + v * sin(old_pose(3)) * T;                                                                                                                                                             
   new_theta = old_pose(3) + omega * T;
                                                                                                                                                                                                                   
-  % Šum — bez něj by se částice pohybovaly identicky                                                                                                                                                              
+    % šum                                                                                                                                                               
   sigma_xy    = 0.05;
   sigma_theta = 0.03;                                                                                                                                                                                             
                   

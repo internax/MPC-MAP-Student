@@ -3,14 +3,14 @@ function [weights] = weight_particles(particle_measurements, lidar_distances)
   N = size(particle_measurements, 1);
   log_weights = zeros(N, 1);
 
-  sigma = 0.1; % z Task 2 — sigma LiDARu
+  sigma = 0.1; 
 
   for i = 1:N
       for j = 1:length(lidar_distances)
           z_real = lidar_distances(j);
           z_part = particle_measurements(i, j);
-
-          % Přeskoč NaN hodnoty
+          
+            %nan
           if isnan(z_real) || isnan(z_part)
               continue
           end

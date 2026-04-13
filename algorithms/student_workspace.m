@@ -14,30 +14,22 @@ if (read_only_vars.counter == 1)
 end                                                                                                                                                                        
  
 
- if read_only_vars.counter == 2
-     disp('Particles sample:'); disp(public_vars.particles(1:3,:))                                                                                                                                                   
-     disp('pf_enabled:'); disp(public_vars.pf_enabled)                                                                                                                                                               
-     waitforbuttonpress;
- end   
-
- if read_only_vars.counter == 3
-     disp('Particles sample:'); disp(public_vars.particles(1:3,:))                                                                                                                                                   
-     disp('pf_enabled:'); disp(public_vars.pf_enabled)                                                                                                                                                               
-     waitforbuttonpress;
- end   
-
- if read_only_vars.counter == 4
-     disp('Particles sample:'); disp(public_vars.particles(1:3,:))                                                                                                                                                   
-     disp('pf_enabled:'); disp(public_vars.pf_enabled)                                                                                                                                                               
-     waitforbuttonpress;
- end   
-
- if read_only_vars.counter == 5
-     disp('Particles sample:'); disp(public_vars.particles(1:3,:))                                                                                                                                                   
-     disp('pf_enabled:'); disp(public_vars.pf_enabled)                                                                                                                                                               
-     waitforbuttonpress;
- end   
- 
+ % if read_only_vars.counter == 2                                                                                                                                                              
+ %     waitforbuttonpress;
+ % end   
+ % 
+ % if read_only_vars.counter == 3                                                                                                                                                               
+ %     waitforbuttonpress;
+ % end   
+ % 
+ % if read_only_vars.counter == 4
+ %     waitforbuttonpress;
+ % end   
+ % 
+ % if read_only_vars.counter == 5                                                                                                                                                              
+ %     waitforbuttonpress;
+ % end   
+ % 
           
                                                                                                                                                                                                                                                             
 public_vars.lidar_log = [public_vars.lidar_log; read_only_vars.lidar_distances];
