@@ -11,4 +11,4 @@ function [public_vars] = init_particle_filter(read_only_vars, public_vars)
                   
   public_vars.particles = [x, y, theta];                                                                                                                                                                          
                   
-end
+end 

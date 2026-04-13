@@ -23,6 +23,10 @@ weights = weight_particles(measurements, read_only_vars.lidar_distances);
 % III. Resampling
 particles = resample_particles(particles, weights);
 
-
+n_random = 50;                                                                                                                                                                                                  
+limits = read_only_vars.map.limits;
+particles(1:n_random, 1) = limits(1) + (limits(3)-limits(1)) * rand(n_random,1);                                                                                                                                
+particles(1:n_random, 2) = limits(2) + (limits(4)-limits(2)) * rand(n_random,1);                                                                                                                                
+particles(1:n_random, 3) = -pi + 2*pi * rand(n_random,1); 
 end
 

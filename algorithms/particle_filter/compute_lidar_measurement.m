@@ -9,7 +9,7 @@ function [measurement] = compute_lidar_measurement(map, pose, lidar_config)
       if isempty(intersections)                                                                                                                                                                                   
           measurement(i) = NaN;                                                                                                                                                                                   
       else                                                                                                                                                                                                        
-          % Vzdálenost od robota ke každému průsečíku
+          % Vzdáenost od robota ke každému průsečíku
           dists = sqrt((intersections(:,1) - pose(1)).^2 + (intersections(:,2) - pose(2)).^2);                                                                                                                    
           measurement(i) = min(dists);
       end                                                                                                                                                                                                         

@@ -16,8 +16,8 @@ function [new_pose] = predict_pose(old_pose, motion_vector, read_only_vars)
   new_theta = old_pose(3) + omega * T;
                                                                                                                                                                                                                   
   % Šum — bez něj by se částice pohybovaly identicky                                                                                                                                                              
-  sigma_xy    = 0.02;
-  sigma_theta = 0.01;                                                                                                                                                                                             
+  sigma_xy    = 0.05;
+  sigma_theta = 0.03;                                                                                                                                                                                             
                   
   new_x     = new_x     + sigma_xy    * randn();                                                                                                                                                                  
   new_y     = new_y     + sigma_xy    * randn();
