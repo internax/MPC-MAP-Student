@@ -4,7 +4,7 @@ function [public_vars] = init_kalman_filter(read_only_vars, public_vars)
     public_vars.kf.C = [1 0 0; 0 1 0];
     
     % kovariance procesního šumu Rt - chyba modelu
-    public_vars.kf.R = diag([0.005, 0.005, 0.05]); % x, y, theta
+    public_vars.kf.R = diag([0.0001, 0.0001, 0.0001]); % x, y, theta
     
     % kovariamce mřicího šumu - chyba senzoru
     public_vars.kf.Q = diag([0.1, 0.1]);

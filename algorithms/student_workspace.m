@@ -35,7 +35,7 @@ if ~public_vars.gnss_init_done
 
         % Matice Q - kovariance sumu mereni GNSS
         % Nasobek > 1 snizuje vliv GNSS na odhad theta -> plynulejsi jizda
-        public_vars.kf.Q = 50 * gnss_cov;
+        public_vars.kf.Q = gnss_cov; %50
 
         % Task 4 - pocatecni belief z GNSS (neznama pocatecni poloha)
         % Orientace neni merena -> vysoka variance pi^2
