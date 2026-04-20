@@ -3,56 +3,55 @@ function [public_vars] = student_workspace(read_only_vars,public_vars)
 
 % 8. Perform initialization procedure
 if (read_only_vars.counter == 1)
-          
-    public_vars.pf_enabled = 1; 
+    public_vars.pf_enabled    = 0;
+    public_vars.motion_vector = [0, 0];
+    public_vars.gnss_log      = [];
 
     public_vars = init_particle_filter(read_only_vars, public_vars);
     public_vars = init_kalman_filter(read_only_vars, public_vars);
 
-    public_vars.lidar_log = [];                                                                                                                                                                            
-    public_vars.gnss_log = [];  
-end                                                                                                                                                                        
- 
+    % Task 1 - manualne navrzena trajektorie: outdoor_1, start [2,2] -> cil [16,2]
+    % Hustá cesta interpolovaná mezi waypointy (nutné pro lookahead controller)
+    wpts = [2,2; 8,8; 14,8; 16,2];
+    dense = [];
+    for i = 1:size(wpts,1)-1
+        n = 60;
+        dense = [dense; linspace(wpts(i,1),wpts(i+1,1),n)', linspace(wpts(i,2),wpts(i+1,2),n)'];
+    end
+    public_vars.path = dense;
+end
 
- % if read_only_vars.counter == 2                                                                                                                                                              
- %     waitforbuttonpress;
- % end   
- % 
- % if read_only_vars.counter == 3                                                                                                                                                               
- %     waitforbuttonpress;
- % end   
- % 
- % if read_only_vars.counter == 4
- %     waitforbuttonpress;
- % end   
- % 
- % if read_only_vars.counter == 5                                                                                                                                                              
- %     waitforbuttonpress;
- % end   
- % 
-          
-                                                                                                                                                                                                                                                            
-public_vars.lidar_log = [public_vars.lidar_log; read_only_vars.lidar_distances];
-public_vars.gnss_log  = [public_vars.gnss_log;  read_only_vars.gnss_position];
+% Task 1 - inicializacni faze: sbir GNSS mereni pro odhad stredni hodnoty a kovariance
+N_init = 100;
+if ~public_vars.gnss_init_done
+    z = read_only_vars.gnss_position;
+    if ~isnan(z(1))
+        public_vars.gnss_log = [public_vars.gnss_log; z];
+    end
 
+    if size(public_vars.gnss_log, 1) >= N_init
+        gnss_mean = mean(public_vars.gnss_log);
+        gnss_cov  = cov(public_vars.gnss_log);
 
-% Task 2 week 3
-path_line = [1,1; 9,9];
+        % Matice Q - kovariance sumu mereni GNSS
+        % Nasobek > 1 snizuje vliv GNSS na odhad theta -> plynulejsi jizda
+        public_vars.kf.Q = 50 * gnss_cov;
 
+        % Task 4 - pocatecni belief z GNSS (neznama pocatecni poloha)
+        % Orientace neni merena -> vysoka variance pi^2
+        public_vars.mu    = [gnss_mean(1); gnss_mean(2); pi/2];
+        public_vars.sigma = [gnss_cov, zeros(2,1); zeros(1,2), pi^2];
+        % Task 3 - znama pocatecni poloha (vysoka jistota):
+        % public_vars.mu    = [2; 2; pi/2];
+        % public_vars.sigma = zeros(3, 3);
 
-t = linspace(0, pi, 100)';                                                                                                                                                                                         
-x = linspace(1, 9, 100)';                                                                                                                                                                                          
-y = linspace(1, 9, 100)' + 2*sin(t);                                                                                                                                                                               
-path_arc = [x, y];                                                                                                                                                                                                     
-
-x = linspace(1, 9, 100)';                                                                                                                                                                                          
-y = linspace(1, 9, 100)' + sin(linspace(0, 6*pi, 100)');                                                                                                                                                           
-path_sine = [x, y];                                                                                                                                                                                                     
-                 
-public_vars.path = path_sine;
-
-
-  
+        public_vars.gnss_init_done = true;
+    else
+        % Robot stoji a ceka na dostatek GNSS dat
+        public_vars.motion_vector = [0, 0];
+        return;
+    end
+end
 
 % 9. Update particle filter
 public_vars.particles = update_particle_filter(read_only_vars, public_vars);
@@ -69,7 +68,4 @@ public_vars.path = plan_path(read_only_vars, public_vars);
 % 13. Plan next motion command
 public_vars = plan_motion(read_only_vars, public_vars);
 
-
-
 end
-

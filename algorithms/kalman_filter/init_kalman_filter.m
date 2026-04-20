@@ -1,12 +1,21 @@
 function [public_vars] = init_kalman_filter(read_only_vars, public_vars)
-%INIT_KALMAN_FILTER Summary of this function goes here
 
-public_vars.kf.C = [];
-public_vars.kf.R = [];
-public_vars.kf.Q = [];
-
-public_vars.mu = [];
-public_vars.sigma = [];
+    % pozorovací matice - abychom dostali správný rozměr dat
+    public_vars.kf.C = [1 0 0; 0 1 0];
+    
+    % kovariance procesního šumu Rt - chyba modelu
+    public_vars.kf.R = diag([0.005, 0.005, 0.05]); % x, y, theta
+    
+    % kovariamce mřicího šumu - chyba senzoru
+    public_vars.kf.Q = diag([0.1, 0.1]);
+    
+    % vzdálenost mezi koly
+    public_vars.kf.L = read_only_vars.agent_drive.interwheel_dist;
+    
+    % známá počáteční poloha
+    public_vars.mu    = [2; 2; pi/2]; %poč. poloha
+    public_vars.sigma = zeros(3, 3); %počáteční bilief
+    
+    public_vars.gnss_init_done = false;
 
 end
-
