@@ -10,15 +10,8 @@ if (read_only_vars.counter == 1)
     public_vars = init_particle_filter(read_only_vars, public_vars);
     public_vars = init_kalman_filter(read_only_vars, public_vars);
 
-    % Task 1 - manualne navrzena trajektorie: outdoor_1, start [2,2] -> cil [16,2]
-    % Hustá cesta interpolovaná mezi waypointy (nutné pro lookahead controller)
-    wpts = [2,2; 8,8; 14,8; 16,2];
-    dense = [];
-    for i = 1:size(wpts,1)-1
-        n = 60;
-        dense = [dense; linspace(wpts(i,1),wpts(i+1,1),n)', linspace(wpts(i,2),wpts(i+1,2),n)'];
-    end
-    public_vars.path = dense;
+    % Task 6 - cesta se naplánuje pomocí A* při prvním volání plan_path
+    public_vars.path = [];
 end
 
 % Task 1 - inicializacni faze: sbir GNSS mereni pro odhad stredni hodnoty a kovariance

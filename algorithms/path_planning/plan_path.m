@@ -1,20 +1,11 @@
 function [path] = plan_path(read_only_vars, public_vars)
-%PLAN_PATH Summary of this function goes here
+%PLAN_PATH Naplánuje cestu pomocí A* - plánuje pouze jednou (když je cesta prázdná)
 
-planning_required = 0;
-
-if planning_required
-    
+if isempty(public_vars.path)
     path = astar(read_only_vars, public_vars);
-    
     path = smooth_path(path);
-    
 else
-
-    
     path = public_vars.path;
-    
 end
 
 end
-
