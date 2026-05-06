@@ -16,7 +16,7 @@ function [public_vars] = plan_motion(read_only_vars, public_vars)
   angle_error     = atan2(sin(angle_error), cos(angle_error));
 
   k      = 0.3;
-  v_base = 0.5 * (1 - 0.6 * abs(angle_error) / pi);
+  v_base = 1.0 * (1 - 0.6 * abs(angle_error) / pi);
 
   vR = v_base + k * angle_error;
   vL = v_base - k * angle_error;

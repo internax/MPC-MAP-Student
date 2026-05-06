@@ -6,10 +6,9 @@ if isempty(old_path) || size(old_path,1) < 3
     return;
 end
 
-% Parametry vyhlazeni
-alpha = 0.1;   % vaha dat    - tahne zpet k puvodni ceste
-beta  = 0.4;   % vaha hladkosti - tahne k prumeru sousedu
-tol   = 1e-5;  % podminka ukonceni
+alpha = 0.4;
+beta  = 0.3;
+tol   = 1e-5;
 
 new_path = old_path;
 n        = size(old_path, 1);

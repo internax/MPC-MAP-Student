@@ -5,9 +5,13 @@ occ_map = read_only_vars.discrete_map.map;
 step    = read_only_vars.map.discretization_step;
 limits  = read_only_vars.map.limits;
 
-% Task 2: inflace prekazek pro clearance 0.4m
-clearance = ceil(0.4 / step);
-occ_map   = inflate_obstacles(occ_map, clearance);
+% Tvrda dilatace: 1 bunka (0.2m) - fyzicka bezpecnostni zona
+hard_clearance = round(0.3 / step);
+occ_map        = inflate_obstacles(occ_map, hard_clearance);
+
+% Soft cost mapa- vzdalenost od prekazek 
+dist_map    = dist_transform(occ_map);
+penalty_map = 4.0 * exp(-dist_map / 1.5);
 
 [nrows, ncols] = size(occ_map);
 
@@ -19,23 +23,22 @@ start = cont2disc(start_cont, limits, step, nrows, ncols);
 goal  = cont2disc(goal_cont,  limits, step, nrows, ncols);
 
 % A* datove struktury
-g         = inf(nrows, ncols);
+g = inf(nrows, ncols);
 g(start(1), start(2)) = 0;
 came_from = zeros(nrows, ncols, 2);
 closed    = false(nrows, ncols);
 
-h = @(r,c) sqrt((r - goal(1))^2 + (c - goal(2))^2);
+h = @(r,c) sqrt((r - goal(1))^2 + (c - goal(2))^2); % anon fce
 
-% open list: [f_cost, row, col]
+% open list
 open_list = [h(start(1), start(2)), start(1), start(2)];
 
-% 8-smerove pohyby [dr, dc, cena]
+% 8-smrove pohyby 
 moves = [-1,-1,sqrt(2); -1,0,1; -1,1,sqrt(2);
           0,-1,1;                 0,1,1;
           1,-1,sqrt(2);  1,0,1;  1,1,sqrt(2)];
 
 while ~isempty(open_list)
-    % Vyber uzel s nejnizsi f_cost
     [~, idx] = min(open_list(:,1));
     r = open_list(idx, 2);
     c = open_list(idx, 3);
@@ -58,7 +61,7 @@ while ~isempty(open_list)
         if nr<1 || nr>nrows || nc<1 || nc>ncols, continue; end
         if occ_map(nr,nc) || closed(nr,nc),       continue; end
 
-        new_g = g(r,c) + moves(i,3);
+        new_g = g(r,c) + moves(i,3) + penalty_map(nr,nc);
         if new_g < g(nr,nc)
             g(nr,nc)            = new_g;
             came_from(nr,nc,:)  = [r, c];
@@ -73,7 +76,7 @@ disp('A*: cesta nenalezena');
 
 end
 
-% --- pomocne funkce ---
+% pomocne funkce aby kod fungoval bez toolboxu
 
 function disc = cont2disc(cont, limits, step, nrows, ncols)
     col  = round((cont(1) - limits(1)) / step) + 1;
@@ -99,8 +102,35 @@ function path = reconstruct_path(came_from, start, goal, limits, step)
     path = [disc2cont(start, limits, step); path];
 end
 
-function inflated = inflate_obstacles(map, n)
-    % Rozsirime kazdy obsazeny pixel o n bunek ve vsech smerech
-    kernel   = ones(2*n+1, 2*n+1);
-    inflated = conv2(double(map), kernel, 'same') > 0;
+% nahrada bwdist pro výpočet vzdálenosti pro kazdou bnku
+function dist_map = dist_transform(occ_map)
+    [nrows, ncols] = size(occ_map);
+    dist_map = inf(nrows, ncols);
+
+    moves = [-1,-1,sqrt(2); -1,0,1; -1,1,sqrt(2);
+              0,-1,1;                0,1,1;
+              1,-1,sqrt(2);  1,0,1;  1,1,sqrt(2)];
+
+    % init - prekazky maji vzdalenost 0
+    dist_map(occ_map) = 0;
+    [qr, qc] = find(occ_map);
+    queue = [qr, qc];
+
+    while ~isempty(queue)
+        r = queue(1,1);
+        c = queue(1,2);
+        queue(1,:) = [];
+
+        for i = 1:8
+            nr = r + moves(i,1);
+            nc = c + moves(i,2);
+            if nr<1||nr>nrows||nc<1||nc>ncols, continue; end
+            new_d = dist_map(r,c) + moves(i,3);
+            if new_d < dist_map(nr,nc)
+                dist_map(nr,nc) = new_d;
+                queue = [queue; nr, nc];
+            end
+        end
+    end
 end
+

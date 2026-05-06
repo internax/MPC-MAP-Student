@@ -99,7 +99,7 @@ if public_vars.pf_enabled
     end
 end
 
-% Detekce skokove zmeny polohy - preplanovani trasy když moc skočím
+% Detekce skokove zmeny polohy - preplanovani trasy
 replan_threshold = 1.0; % metry
 if ~any(isnan(public_vars.prev_pose))
     pose_jump = norm(public_vars.estimated_pose(1:2) - public_vars.prev_pose(1:2));
@@ -107,8 +107,7 @@ if ~any(isnan(public_vars.prev_pose))
         public_vars.path = [];
     end
 
-    % Detekce toceni/krouzeni - reinicializace PF pokud se robot začně
-    % točit na místě
+    % Detekce toceni/krouzeni - reinicializace PF
     if public_vars.pf_enabled
         delta_theta = abs(atan2(sin(public_vars.estimated_pose(3) - public_vars.prev_pose(3)), ...
                                 cos(public_vars.estimated_pose(3) - public_vars.prev_pose(3))));
@@ -132,21 +131,21 @@ public_vars.path = plan_path(read_only_vars, public_vars);
 % 13. Plan next motion command
 public_vars = plan_motion(read_only_vars, public_vars);
 
-% Collision check - LIDARem kontroluji jestli nejsem moc blízko stěny
-collision_threshold = 0.3;
+% Collision check - LIDAR
+collision_threshold = 0.2; % metry
 lidar = read_only_vars.lidar_distances;
 [min_dist, min_idx] = min(lidar);
 if min_dist < collision_threshold
-    % Uhel nejblizsi prekazky v global sourad
+    % Uhel nejblizsi prekazky v globalnim souradnem systemu
     obstacle_angle = read_only_vars.lidar_config(min_idx) + public_vars.estimated_pose(3);
-    % Rel uhel prekazky vuci smeru robota
+    % Relativni uhel prekazky vuci smeru robota
     rel_angle = atan2(sin(obstacle_angle - public_vars.estimated_pose(3)), ...
                       cos(obstacle_angle - public_vars.estimated_pose(3)));
-    % Otoc se od prekazky - pomalé otáčení pokud jsem blízko stěny
+    % Otoc se od prekazky
     if rel_angle > 0
-        public_vars.motion_vector = [0, 0.1]; 
+        public_vars.motion_vector = [0, 0.1]; % otoc doleva
     else
-        public_vars.motion_vector = [0.1, 0]; 
+        public_vars.motion_vector = [0.1, 0]; % otoc doprava
     end
 end
 
